@@ -26,10 +26,11 @@ package org.zeromq.zguide.chapter4.majordomo;
  */
 import java.util.Formatter;
 
-import java.org.zeromq.ZContext;
-import java.org.zeromq.ZFrame;
-import java.org.zeromq.ZMQ;
-import java.org.zeromq.ZMsg;
+import org.zeromq.ZContext;
+import org.zeromq.ZFrame;
+import org.zeromq.ZMQ;
+import org.zeromq.ZMQ.Socket;
+import org.zeromq.ZMsg;
 
 /**
 

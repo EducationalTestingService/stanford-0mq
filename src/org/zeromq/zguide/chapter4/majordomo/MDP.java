@@ -18,7 +18,7 @@ package org.zeromq.zguide.chapter4.majordomo;
  */
 import java.util.Arrays;
 
-import java.org.zeromq.ZFrame;
+import org.zeromq.ZFrame;
 
 /**
  * Majordomo Protocol definitions, Java version
