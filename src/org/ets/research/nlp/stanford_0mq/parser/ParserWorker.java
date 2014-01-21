@@ -10,7 +10,9 @@ import java.util.List;
 import org.zeromq.ZMsg;
 import org.zeromq.zguide.chapter4.majordomo.mdwrkapi;
 
+import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.HasWord;
+import edu.stanford.nlp.ling.Sentence;
 import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
 import edu.stanford.nlp.pipeline.DefaultPaths;
 import edu.stanford.nlp.process.DocumentPreprocessor;
@@ -48,13 +50,42 @@ public class ParserWorker extends mdwrkapi
 			String outputFormat = request.popString();
 			String outputFormatOptions = request.popString();
 			String receivedText = request.popString();
-			reply = request;
-			List<String> parseTrees = parseText(receivedText, outputFormat, outputFormatOptions);
-			for (String tree : parseTrees)
+			
+			reply = new ZMsg();
+			if (request.size() == 0)
 			{
-				reply.add(tree);
+				List<String> parseTrees = parseText(receivedText, outputFormat, outputFormatOptions);
+				reply.clear();
+				for (String tree : parseTrees)
+				{
+					reply.add(tree);
+				}
+			}
+			else //tokens
+			{
+				List<String> tokens = new ArrayList<String>();
+				tokens.add(receivedText);
+				while ((receivedText = request.popString()) != null)
+				{
+					tokens.add(receivedText);
+				}
+				reply.clear();
+				reply.add(parseSentence(tokens, outputFormat, outputFormatOptions));
 			}
 		}
+	}
+
+	private String parseSentence(List<String> sentenceTokens, String outputFormat,
+			String outputFormatOptions) 
+	{
+        setOptions(outputFormat, outputFormatOptions);
+        
+        // a single sentence worth of tokens
+        String[] tokenArray = new String[sentenceTokens.size()];
+        sentenceTokens.toArray(tokenArray);
+        List<CoreLabel> crazyStanfordFormat = Sentence.toCoreLabelList(tokenArray);
+        Tree parseTree = parser.apply(crazyStanfordFormat);
+        return TreeObjectToString(parseTree);//, parseTree.score());
 	}
 
 	private List<String> parseText(String text, String outputFormat, String outputFormatOptions) 

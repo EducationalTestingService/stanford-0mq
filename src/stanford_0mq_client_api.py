@@ -13,22 +13,31 @@ class Stanford0mqClient(MajorDomoClient):
         0mq/TCP sockets seem to do crazy stuff when we send over newlines ("\n").
         TODO: come up with a better way to handle this...
         '''
-
-        return text.replace("\n", "  ")
+        if type(text) == list:
+            return [("  " if t == "\n" else t) for t in text]
+        else:
+            return text.replace("\n", "  ")
 
 
     def parse(self, text, outputFormat, outputFormatOptions):
-        # TODO: Determine whether or not `text` is a list of tokenized sentences
-        # and send to appropriate ParserWorker method.
+        self.reconnect_to_broker()
         response = None
         text = self._prepare_text(text)
-        while True:
+        while response is None:
             try:
-                self.send("ParserWorker", [outputFormat, outputFormatOptions, text])
+                request = [outputFormat, outputFormatOptions]
+                if type(text) == list:
+                    request += text
+                else:
+                    request.append(text)
+                self.send("ParserWorker", request)
                 response = self.recv()
                 if response is not None:
-                    return response
-                    break
+                    if type(text) == list:
+                        return response[0]
+                    else:
+                        return response
             except Exception as e:
+                response = None
                 # TODO: Probably all sorts of exceptions could be thrown; handle them.
-                continue
+                #continue
