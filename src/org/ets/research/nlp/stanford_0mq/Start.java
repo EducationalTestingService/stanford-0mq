@@ -15,6 +15,6 @@ public class Start
 	 */
 	public static void main(String[] args) 
 	{
-		ParserWorker parser = new ParserWorker("tcp://127.0.0.1:5555", true);
+		ParserWorker parser = new ParserWorker("", "tcp://127.0.0.1:5555", true);
 	}
 }

@@ -12,5 +12,6 @@ is a solitary animal, mainly active from dusk to dawn, and is largely
 sedentary during the day."""
 
 client = Stanford0mqClient("tcp://127.0.0.1:5555")
-for (i, tree) in enumerate(client.parse(test_text)):
-    print str(i) + "\t" + tree
+outputFormat = "penn,wordsAndTags"
+for (i, tree) in enumerate(client.parse(test_text, outputFormat, "xml")):
+    print str(i) + "\n" + tree

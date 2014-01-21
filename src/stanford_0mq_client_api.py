@@ -17,14 +17,14 @@ class Stanford0mqClient(MajorDomoClient):
         return text.replace("\n", "  ")
 
 
-    def parse(self, text):
+    def parse(self, text, outputFormat, outputFormatOptions):
         # TODO: Determine whether or not `text` is a list of tokenized sentences
         # and send to appropriate ParserWorker method.
         response = None
         text = self._prepare_text(text)
         while True:
             try:
-                self.send("ParserWorker", text)
+                self.send("ParserWorker", [outputFormat, outputFormatOptions, text])
                 response = self.recv()
                 if response is not None:
                     return response

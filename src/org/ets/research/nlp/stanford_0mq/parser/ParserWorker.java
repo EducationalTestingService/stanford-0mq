@@ -25,10 +25,19 @@ public class ParserWorker extends mdwrkapi
     private TreePrint treePrinter;
     private TreebankLanguagePack tlp;
 	
-	public ParserWorker(String broker, boolean verbose) 
+	public ParserWorker(String modelFile, String broker, boolean verbose) 
 	{
 		super(broker, "ParserWorker", verbose);
-		parser = LexicalizedParser.loadModel(DefaultPaths.DEFAULT_PARSER_MODEL, new String[]{});
+		
+        if (modelFile.equals("") || modelFile == null) 
+        {
+        	parser = LexicalizedParser.loadModel(DefaultPaths.DEFAULT_PARSER_MODEL, new String[]{});
+        }
+        else 
+        {
+        	parser = LexicalizedParser.loadModel(modelFile, new String[]{});
+        }
+		
         tlp = new PennTreebankLanguagePack();
         treePrinter = new TreePrint("oneline", "", tlp);
 		
@@ -36,20 +45,23 @@ public class ParserWorker extends mdwrkapi
 		while (true)
 		{
 			ZMsg request = super.receive(reply);
+			String outputFormat = request.popString();
+			String outputFormatOptions = request.popString();
 			String receivedText = request.popString();
 			reply = request;
-			List<String> parseTrees = parseText(receivedText);
+			List<String> parseTrees = parseText(receivedText, outputFormat, outputFormatOptions);
 			for (String tree : parseTrees)
 			{
 				reply.add(tree);
 			}
-			//request.destroy();
 		}
 	}
 
-	private List<String> parseText(String text) 
+	private List<String> parseText(String text, String outputFormat, String outputFormatOptions) 
 	{
         List<String> results = new ArrayList<String>();
+        
+        setOptions(outputFormat, outputFormatOptions);
         
         // assume no tokenization was done; use Stanford's default tokenizer
         DocumentPreprocessor preprocess = new DocumentPreprocessor(new StringReader(text));
@@ -69,5 +81,20 @@ public class ParserWorker extends mdwrkapi
 		PrintWriter pw = new PrintWriter(sw);
 		treePrinter.printTree(tree, pw);
 		return sw.getBuffer().toString().trim();
+	}
+	
+	private void setOptions(String outputFormat, String outputFormatOptions)
+	{
+        if (outputFormat.length() > 0)
+        {
+        	if (outputFormatOptions.length() > 0)
+        	{
+        		treePrinter = new TreePrint(outputFormat, outputFormatOptions, tlp);
+        	}
+        	else
+        	{
+        		treePrinter = new TreePrint(outputFormat, "", tlp);
+        	}
+        }
 	}
 }
