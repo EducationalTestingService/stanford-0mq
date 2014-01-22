@@ -17,7 +17,7 @@ This is very much a **work in progress**, however you're welcome to join the par
 
 For the most part, this project uses the majordomo code as provided by the [zguide](https://github.com/imatix/zguide).  The broker provided here (`mdbroker`) is completely unmodified from the example code, so you're welcome to swap in your own.  The same goes for `mdwrkapi`, although each of the workers provided here is a subclass of that.  There are/will be one worker per each Stanford CoreNLP tool.
 
-At the moment, only a Python client API is provided, which is a subclass of (again unmodified) 'MajorDomoClient` as provided by the zguide's `mdcliapi2` module.  See the `example_[a-z]+_client.py` files for examples of how to use the Python client.
+At the moment, only a Python client API is provided, which is a subclass of (again unmodified) `MajorDomoClient` as provided by the zguide's `mdcliapi2` module.  See the `example_[a-z]+_client.py` files for examples of how to use the Python client.
 
 ## How to Use This ##
 
