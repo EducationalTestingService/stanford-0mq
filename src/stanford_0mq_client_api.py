@@ -1,3 +1,5 @@
+import re
+
 from zguide.mdcliapi2 import MajorDomoClient
 
 
@@ -16,6 +18,10 @@ class Stanford0mqClient(MajorDomoClient):
         if type(text) == list:
             return [("  " if t == "\n" else t) for t in text]
         else:
+            is_tagged = re.search(r'[^/_]+([/_])[^/_ ]+', text)
+            if is_tagged:
+                delimiter = is_tagged.groups()[0]
+                return [delimiter, text.replace("\n", "  ")]
             return text.replace("\n", "  ")
 
 
@@ -40,4 +46,3 @@ class Stanford0mqClient(MajorDomoClient):
             except Exception as e:
                 response = None
                 # TODO: Probably all sorts of exceptions could be thrown; handle them.
-                #continue

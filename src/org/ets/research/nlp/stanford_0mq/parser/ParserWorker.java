@@ -21,6 +21,8 @@ import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreePrint;
 import edu.stanford.nlp.trees.TreebankLanguagePack;
 
+import org.ets.research.nlp.stanford_0mq.CoreNLP0mqUtil;
+
 public class ParserWorker extends mdwrkapi
 {
     private LexicalizedParser parser;
@@ -49,37 +51,52 @@ public class ParserWorker extends mdwrkapi
 			ZMsg request = super.receive(reply);
 			String outputFormat = request.popString();
 			String outputFormatOptions = request.popString();
+			
+			setOptions(outputFormat, outputFormatOptions);
+			
 			String receivedText = request.popString();
 			
 			reply = new ZMsg();
 			if (request.size() == 0)
 			{
-				List<String> parseTrees = parseText(receivedText, outputFormat, outputFormatOptions);
+				List<String> parseTrees = parseText(receivedText);
 				reply.clear();
 				for (String tree : parseTrees)
 				{
 					reply.add(tree);
 				}
 			}
-			else //tokens
+			else 
 			{
-				List<String> tokens = new ArrayList<String>();
-				tokens.add(receivedText);
-				while ((receivedText = request.popString()) != null)
+				if (receivedText.equals("/") || receivedText.equals("_")) //POS-tagged
 				{
-					tokens.add(receivedText);
+					reply.clear();
+					reply.add(parseTaggedSentence(request.popString(), receivedText));
 				}
-				reply.clear();
-				reply.add(parseSentence(tokens, outputFormat, outputFormatOptions));
+				else //tokens
+				{
+					List<String> tokens = new ArrayList<String>();
+					tokens.add(receivedText);
+					while ((receivedText = request.popString()) != null)
+					{
+						tokens.add(receivedText);
+					}
+					reply.clear();
+					reply.add(parseSentence(tokens));
+				}
 			}
 		}
 	}
 
-	private String parseSentence(List<String> sentenceTokens, String outputFormat,
-			String outputFormatOptions) 
+	private String parseTaggedSentence(String taggedSentence, String delimiter) 
 	{
-        setOptions(outputFormat, outputFormatOptions);
-        
+        // a single sentence worth of tagged text, better be properly tokenized >:D         
+        Tree parseTree = parser.apply(CoreNLP0mqUtil.getListOfTaggedWordsFromTaggedSentence(taggedSentence, delimiter));
+        return TreeObjectToString(parseTree);//, parseTree.score();
+	}
+
+	private String parseSentence(List<String> sentenceTokens) 
+	{
         // a single sentence worth of tokens
         String[] tokenArray = new String[sentenceTokens.size()];
         sentenceTokens.toArray(tokenArray);
@@ -88,11 +105,9 @@ public class ParserWorker extends mdwrkapi
         return TreeObjectToString(parseTree);//, parseTree.score());
 	}
 
-	private List<String> parseText(String text, String outputFormat, String outputFormatOptions) 
+	private List<String> parseText(String text) 
 	{
         List<String> results = new ArrayList<String>();
-        
-        setOptions(outputFormat, outputFormatOptions);
         
         // assume no tokenization was done; use Stanford's default tokenizer
         DocumentPreprocessor preprocess = new DocumentPreprocessor(new StringReader(text));
@@ -126,6 +141,10 @@ public class ParserWorker extends mdwrkapi
         	{
         		treePrinter = new TreePrint(outputFormat, "", tlp);
         	}
+        }
+        else
+        {
+        	treePrinter = new TreePrint("oneline", "", tlp);
         }
 	}
 }
