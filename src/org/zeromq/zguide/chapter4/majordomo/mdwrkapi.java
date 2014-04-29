@@ -40,7 +40,7 @@ import org.zeromq.ZMsg;
  */
 public class mdwrkapi {
 
-	private static final int HEARTBEAT_LIVENESS = 3; // 3-5 is reasonable
+	private static final int HEARTBEAT_LIVENESS = 5; // 3-5 is reasonable
 
 	private String broker;
 	private ZContext ctx;
@@ -49,8 +49,8 @@ public class mdwrkapi {
 	private Socket worker; // Socket to broker
 	private long heartbeatAt;// When to send HEARTBEAT
 	private int liveness;// How many attempts left
-	private int heartbeat = 2500;// Heartbeat delay, msecs
-	private int reconnect = 2500; // Reconnect delay, msecs
+	private int heartbeat = 250;// Heartbeat delay, msecs
+	private int reconnect = 10; // Reconnect delay, msecs
 
 	// Internal state
 	private boolean expectReply = false; // false only at start
@@ -135,6 +135,7 @@ public class mdwrkapi {
 		expectReply = true;
 
 		while (!Thread.currentThread().isInterrupted()) {
+			System.err.println(liveness);
 			// Poll socket for a reply, with timeout
 			ZMQ.Poller items = new ZMQ.Poller(1);
 			items.register(worker, ZMQ.Poller.POLLIN);

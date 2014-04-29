@@ -7,14 +7,15 @@ import org.ets.research.nlp.stanford_0mq.parser.ParserWorker;
  * @author diane
  *
  */
-public class Start 
+public class Start
 {
 
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) 
+	public static void main(String[] args)
 	{
+		@SuppressWarnings("unused")
 		ParserWorker parser = new ParserWorker("", "tcp://127.0.0.1:5555", true);
 	}
 }
