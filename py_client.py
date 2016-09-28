@@ -21,3 +21,16 @@ reply = socket.recv_string()
 print("Raw result:", reply)
 result = json.loads(reply)
 print(result["tags"])
+
+request = json.dumps(result)
+print("Sending request", result, file=sys.stderr)
+socket.send_string(request, 0)
+
+reply = socket.recv_string()
+
+print("Raw result:", reply)
+result = json.loads(reply)
+print(result["trees"])
+
+socket.close()
+context.term()
