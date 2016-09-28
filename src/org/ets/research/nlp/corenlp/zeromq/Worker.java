@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.json.simple.JSONValue;
+import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Context;
@@ -60,7 +60,7 @@ public class Worker extends Thread
         }
 
         System.err.println(output.toString());
-        return JSONValue.toJSONString(output);
+        return JSONObject.toJSONString(output);
     }
 
     private List<List<String>> tagTokenizedSentences(List<List<String>> tokenizedSentences)
