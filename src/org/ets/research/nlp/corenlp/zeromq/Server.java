@@ -9,7 +9,6 @@ import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 
 public class Server
 {
-    // TODO: config file
     private final int THREADS = 10;
     private ShiftReduceParser srModel;
     private MaxentTagger tagger;
@@ -21,9 +20,8 @@ public class Server
             System.err.println("Initializing MaxentTagger...");
             tagger = new MaxentTagger("edu/stanford/nlp/models/pos-tagger/english-left3words/english-left3words-distsim.tagger");
 
-            //System.err.println("Initializing Shift-Reduce Parser...");
-            //srModel = ShiftReduceParser.loadModel("edu/stanford/nlp/models/srparser/englishSR.ser.gz");
-            srModel = null;
+            System.err.println("Initializing Shift-Reduce Parser...");
+            srModel = ShiftReduceParser.loadModel("edu/stanford/nlp/models/srparser/englishSR.ser.gz");
 
             Context context = ZMQ.context(1);
 
@@ -52,12 +50,10 @@ public class Server
 
     public static void main(String[] args)
     {
-        // org.ets.research.nlp.corenlp.zeromq.StanfordZeroMQServer
-        // <broker address>
+        // org.ets.research.nlp.corenlp.zeromq.Server <broker address>
         // for example:
         // tcp://127.0.0.1:5555
         @SuppressWarnings("unused")
         Server server = new Server(args[0]);
     }
-
 }

@@ -11,7 +11,7 @@ import org.zeromq.ZMQ;
 
 public class JavaClient
 {
-    public static String requestStanfordCoreNLPOutput(List<List<String>> tokenizedText, String brokerAddress)
+    public static String requestStanfordCoreNLPOutput(List<List<String>> input, String type, String brokerAddress)
     {
         ZMQ.Context context = ZMQ.context(1);
 
@@ -21,7 +21,7 @@ public class JavaClient
         requester.connect(brokerAddress);
 
         Map<String, Object> requestObject = new HashMap<String, Object>();
-        requestObject.put("tokens", tokenizedText);
+        requestObject.put(type, input);
         String requestString = JSONValue.toJSONString(requestObject);
 
         requester.send(requestString.getBytes(), 0);
@@ -46,12 +46,20 @@ public class JavaClient
         test.add("!");
         tokenizedText.add(test);
 
+        String brokerAddress = "tcp://127.0.0.1:5555";
+
         try
         {
-            String jsonResult = JavaClient.requestStanfordCoreNLPOutput(tokenizedText,
-                    "tcp://127.0.0.1:5555");
-            Map<String, Object> result = (Map<String, Object>) jsonParser.parse(jsonResult);
-            System.out.println(result.get("tags"));
+            String result = JavaClient.requestStanfordCoreNLPOutput(tokenizedText, "tokens", brokerAddress);
+            Map<String, Object> tagsResult = (Map<String, Object>) jsonParser.parse(result);
+            List<List<String>> tags = (List<List<String>>) tagsResult.get("tags");
+            //System.out.println(tags);
+
+
+            result = JavaClient.requestStanfordCoreNLPOutput(tags, "tags", brokerAddress);
+            Map<String, Object> treesResult = (Map<String, Object>) jsonParser.parse(result);
+            List<String> trees = (List<String>) treesResult.get("trees");
+            System.out.println(trees);
         }
         catch (Exception e)
         {

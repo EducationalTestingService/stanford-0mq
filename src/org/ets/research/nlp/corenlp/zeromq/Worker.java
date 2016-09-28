@@ -15,8 +15,13 @@ import org.zeromq.ZMQ.Context;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.Sentence;
 import edu.stanford.nlp.ling.TaggedWord;
+import edu.stanford.nlp.ling.TaggedWordFactory;
 import edu.stanford.nlp.parser.shiftreduce.ShiftReduceParser;
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
+import edu.stanford.nlp.trees.PennTreebankLanguagePack;
+import edu.stanford.nlp.trees.Tree;
+import edu.stanford.nlp.trees.TreePrint;
+import edu.stanford.nlp.trees.TreebankLanguagePack;
 
 public class Worker extends Thread
 {
@@ -24,8 +29,6 @@ public class Worker extends Thread
     private JSONParser jsonParser;
     private ShiftReduceParser parser;
     private MaxentTagger tagger;
-
-    private String[] outputFormat = {"-outputFormat", "oneline"};
 
     public Worker(Context c, ShiftReduceParser p, MaxentTagger t)
     {
@@ -58,6 +61,12 @@ public class Worker extends Thread
             input = (List<List<String>>) request.get("tokens");
             output.put("tags", tagTokenizedSentences(input));
         }
+        else if (request.containsKey("tags"))
+        {
+            // each String is like "Hello/UH"
+            input = (List<List<String>>) request.get("tags");
+            output.put("trees", parseTaggedSentences(input));
+        }
 
         System.err.println(output.toString());
         return JSONObject.toJSONString(output);
@@ -83,6 +92,34 @@ public class Worker extends Thread
         }
 
         return taggedTokenizedSentences;
+    }
+
+    private List<String> parseTaggedSentences(List<List<String>> taggedTokenizedSentences)
+    {
+        List<String> parseTrees = new ArrayList<String>();
+        //String[] outputFormat = {"-outputFormat", "oneline"};
+        TaggedWordFactory tf = new TaggedWordFactory('/');
+        TreebankLanguagePack tlp = new PennTreebankLanguagePack();
+
+        for (List<String> taggedSentence : taggedTokenizedSentences)
+        {
+            String[] taggedTokensArray = new String[taggedSentence.size()];
+            taggedSentence.toArray(taggedTokensArray);
+            List<TaggedWord> taggedWordList = new ArrayList<TaggedWord>();
+            for (String taggedToken : taggedTokensArray)
+            {
+                taggedWordList.add((TaggedWord)tf.newLabelFromString(taggedToken));
+            }
+
+            TreePrint treePrinter = new TreePrint("oneline", tlp);
+            Tree parseTree = parser.apply(taggedWordList);
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            treePrinter.printTree(parseTree, pw);
+            parseTrees.add(sw.getBuffer().toString().trim());
+        }
+
+        return parseTrees;
     }
 
     public void run()

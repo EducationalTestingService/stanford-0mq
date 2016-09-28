@@ -27,13 +27,13 @@
   	<dependency>
   		<groupId>edu.stanford.nlp</groupId>
   		<artifactId>stanford-corenlp</artifactId>
-  		<version>3.5.2</version>
+  		<version>3.6.0</version>
   	</dependency>
-  	<dependency>
+	<dependency>
   		<groupId>edu.stanford.nlp</groupId>
   		<artifactId>stanford-corenlp</artifactId>
-  		<version>3.5.2</version>
-  		<classifier>models</classifier>
+  		<version>3.6.0</version>
+		<classifier>models</classifier>
   	</dependency>
   	<dependency>
   		<groupId>com.googlecode.json-simple</groupId>
