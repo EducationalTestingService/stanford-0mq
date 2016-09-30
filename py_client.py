@@ -4,7 +4,8 @@ import json
 import zmq
 
 
-broker_addr = "tcp://127.0.0.1:5555"
+# e.g. tcp://jord.research.ets.org:5555
+broker_addr = sys.argv[1]
 
 context = zmq.Context()
 
