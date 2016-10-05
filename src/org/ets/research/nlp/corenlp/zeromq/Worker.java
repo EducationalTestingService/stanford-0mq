@@ -2,7 +2,11 @@ package org.ets.research.nlp.corenlp.zeromq;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.DateFormat;
+import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +72,6 @@ public class Worker extends Thread
             output.put("trees", parseTaggedSentences(input));
         }
 
-        System.err.println(output.toString());
         return JSONObject.toJSONString(output);
     }
 
@@ -97,7 +100,6 @@ public class Worker extends Thread
     private List<String> parseTaggedSentences(List<List<String>> taggedTokenizedSentences)
     {
         List<String> parseTrees = new ArrayList<String>();
-        //String[] outputFormat = {"-outputFormat", "oneline"};
         TaggedWordFactory tf = new TaggedWordFactory('/');
         TreebankLanguagePack tlp = new PennTreebankLanguagePack();
 
@@ -127,15 +129,19 @@ public class Worker extends Thread
         ZMQ.Socket socket = context.socket(ZMQ.REP);
         socket.connect ("inproc://workers");
 
+        DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+
         while (true)
         {
-            // Wait for next request from client (C string)
-            String request = socket.recvStr(0);//, StandardCharsets.UTF_8);
-            System.err.println(Thread.currentThread().getName() + " Received request: [" + request + "]");
+            String request = socket.recvStr(0);
+            String info = MessageFormat.format("[{0}] {1} received request of {2} characters.",
+                                               dateFormat.format(Calendar.getInstance().getTime()),
+                                               Thread.currentThread().getName(),
+                                               request.length());
+            System.err.println(info);
 
             try
             {
-                // Send reply back to client (C string)
                 String results = parseRequestJSON(request);
                 socket.send(results, 0);
                 Thread.sleep(1000); // ?
