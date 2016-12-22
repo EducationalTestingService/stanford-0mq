@@ -11,7 +11,7 @@ import org.zeromq.ZMQ;
 
 public class JavaClient
 {
-    public static String requestStanfordCoreNLPOutput(List<List<String>> input, String type, String brokerAddress)
+    public static String requestStanfordCoreNLPOutput(Object input, String type, String brokerAddress)
     {
         ZMQ.Context context = ZMQ.context(1);
 
@@ -53,13 +53,20 @@ public class JavaClient
             String result = JavaClient.requestStanfordCoreNLPOutput(tokenizedText, "tokens", brokerAddress);
             Map<String, Object> tagsResult = (Map<String, Object>) jsonParser.parse(result);
             List<List<String>> tags = (List<List<String>>) tagsResult.get("tags");
-            //System.out.println(tags);
-
+            System.out.println(tags);
+            System.out.println();
 
             result = JavaClient.requestStanfordCoreNLPOutput(tags, "tags", brokerAddress);
             Map<String, Object> treesResult = (Map<String, Object>) jsonParser.parse(result);
             List<String> trees = (List<String>) treesResult.get("trees");
             System.out.println(trees);
+            System.out.println();
+
+            result = JavaClient.requestStanfordCoreNLPOutput("Hello, world!  Please tokenize this text.  Thanks!",
+                                                             "text", brokerAddress);
+            Map<String, Object> tokenizerResult = (Map<String, Object>) jsonParser.parse(result);
+            List<List<String>> tokenizedSentences = (List<List<String>>) tokenizerResult.get("tokens");
+            System.out.println(tokenizedSentences);
         }
         catch (Exception e)
         {

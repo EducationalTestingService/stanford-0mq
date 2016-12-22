@@ -1,6 +1,7 @@
 package org.ets.research.nlp.corenlp.zeromq;
 
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.MessageFormat;
@@ -8,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -17,10 +19,12 @@ import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Context;
 
 import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.Sentence;
 import edu.stanford.nlp.ling.TaggedWord;
 import edu.stanford.nlp.ling.TaggedWordFactory;
 import edu.stanford.nlp.parser.shiftreduce.ShiftReduceParser;
+import edu.stanford.nlp.process.DocumentPreprocessor;
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 import edu.stanford.nlp.trees.PennTreebankLanguagePack;
 import edu.stanford.nlp.trees.Tree;
@@ -44,6 +48,8 @@ public class Worker extends Thread
 
     /**
      * Request could contain:
+     * {"text: : "This is a sentence.  Here is another one.  Hello, world!"}
+     * or
      * {"tokens" : [["This", "is", "a", "sentence", "."], ["Here", "is", "another", "one", "."]]}
      * or
      * {"tags" : [["Hello/UH", ",/,", "world/NN", "!/."], ...]}
@@ -60,7 +66,12 @@ public class Worker extends Thread
 
         List<List<String>> input = null;
 
-        if (request.containsKey("tokens"))
+        if (request.containsKey("text"))
+        {
+            String rawTextInput = (String) request.get("text");
+            output.put("tokens", tokenizeText(rawTextInput));
+        }
+        else if (request.containsKey("tokens"))
         {
             input = (List<List<String>>) request.get("tokens");
             output.put("tags", tagTokenizedSentences(input));
@@ -73,6 +84,26 @@ public class Worker extends Thread
         }
 
         return JSONObject.toJSONString(output);
+    }
+
+    private List<List<String>> tokenizeText(String rawTextInput)
+    {
+        List<List<String>> tokenizedSentences = new ArrayList<List<String>>();
+
+        DocumentPreprocessor preprocess = new DocumentPreprocessor(new StringReader(rawTextInput));
+        Iterator<List<HasWord>> foundSentences = preprocess.iterator();
+        while (foundSentences.hasNext())
+        {
+            List<HasWord> tokenizedSentence = foundSentences.next();
+            List<String> tokenizedSentenceAsListOfStrings = new ArrayList<String>();
+            for (HasWord w : tokenizedSentence)
+            {
+                tokenizedSentenceAsListOfStrings.add(w.word());
+            }
+            tokenizedSentences.add(tokenizedSentenceAsListOfStrings);
+        }
+
+        return tokenizedSentences;
     }
 
     private List<List<String>> tagTokenizedSentences(List<List<String>> tokenizedSentences)
