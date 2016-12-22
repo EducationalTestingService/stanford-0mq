@@ -1,0 +1,8 @@
+*.pyc
+*~
+
+bin/
+.classpath
+.project
+/target/
+.settings/
