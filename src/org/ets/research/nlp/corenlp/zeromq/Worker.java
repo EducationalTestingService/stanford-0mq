@@ -20,7 +20,7 @@ import org.zeromq.ZMQ.Context;
 
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.HasWord;
-import edu.stanford.nlp.ling.Sentence;
+import edu.stanford.nlp.ling.SentenceUtils;
 import edu.stanford.nlp.ling.TaggedWord;
 import edu.stanford.nlp.ling.TaggedWordFactory;
 import edu.stanford.nlp.parser.shiftreduce.ShiftReduceParser;
@@ -114,7 +114,7 @@ public class Worker extends Thread
         {
             String[] tokenArray = new String[tokenizedSentence.size()];
             tokenizedSentence.toArray(tokenArray);
-            List<CoreLabel> stanfordFormat = Sentence.toCoreLabelList(tokenArray);
+            List<CoreLabel> stanfordFormat = SentenceUtils.toCoreLabelList(tokenArray);
             List<TaggedWord> outputFromTagger = tagger.apply(stanfordFormat);
             // each element is like "dog/NN"
             List<String> taggedSentence = new ArrayList<String>();
