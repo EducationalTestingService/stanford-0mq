@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>stanford-sr-parser-zeromq-server</groupId>
 	<artifactId>stanford-sr-parser-zeromq-server</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>0.0.3-SNAPSHOT</version>
 	<name>Quick and Dirty Stanford Shift-Reduce Parser ØMQ Server</name>
 	<description>Quick and Dirty Stanford Shift-Reduce Parser ØMQ Server</description>
 	<properties>
@@ -57,12 +57,12 @@
 		<dependency>
 			<groupId>edu.stanford.nlp</groupId>
 			<artifactId>stanford-corenlp</artifactId>
-			<version>3.8.0</version>
+			<version>3.9.2</version>
 		</dependency>
 		<dependency>
 			<groupId>edu.stanford.nlp</groupId>
 			<artifactId>stanford-corenlp</artifactId>
-			<version>3.8.0</version>
+			<version>3.9.2</version>
 			<classifier>models</classifier>
 		</dependency>
 		<dependency>
