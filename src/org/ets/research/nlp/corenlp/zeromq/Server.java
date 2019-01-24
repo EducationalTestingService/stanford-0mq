@@ -51,7 +51,7 @@ public class Server
 
     public Server(String myBrokerAddress)
     {
-        this(myBrokerAddress, 10)
+        this(myBrokerAddress, 10);
     }
 
     public static void main(String[] args)
