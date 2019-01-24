@@ -9,12 +9,13 @@ import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 
 public class Server
 {
-    private final int THREADS = 10;
+
     private ShiftReduceParser srModel;
     private MaxentTagger tagger;
 
-    public Server(String myBrokerAddress)
+    public Server(String myBrokerAddress, int threads)
     {
+
         try
         {
             System.err.println("Initializing MaxentTagger...");
@@ -31,7 +32,7 @@ public class Server
             Socket workers = context.socket(ZMQ.DEALER);
             workers.bind("inproc://workers");
 
-            for (int thread_nbr = 0; thread_nbr < this.THREADS; thread_nbr++)
+            for (int thread_nbr = 0; thread_nbr < threads; thread_nbr++)
             {
                 System.err.println("Starting worker thread " + thread_nbr);
                 Thread worker = new Worker(context, srModel, tagger);
@@ -48,12 +49,29 @@ public class Server
         }
     }
 
+    public Server(String myBrokerAddress)
+    {
+        this(myBrokerAddress, 10);
+    }
+
     public static void main(String[] args)
     {
-        // org.ets.research.nlp.corenlp.zeromq.Server <broker address>
+        // org.ets.research.nlp.corenlp.zeromq.Server <broker address> [thread count]
         // for example:
         // tcp://127.0.0.1:5555
-        @SuppressWarnings("unused")
-        Server server = new Server(args[0]);
+        if (args.length == 2)
+        {
+                
+            // get the number of threads as an integer
+            int threads = Integer.parseInt(args[1].trim());
+
+            @SuppressWarnings("unused")
+            Server server = new Server(args[0], threads);
+        }
+        else
+        {
+            @SuppressWarnings("unused")
+            Server server = new Server(args[0]);
+        }
     }
 }
