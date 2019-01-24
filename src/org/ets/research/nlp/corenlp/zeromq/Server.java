@@ -63,7 +63,7 @@ public class Server
         {
                 
             // get the number of threads as an integer
-            threads = Integer.parseInt(args[1]);
+            int threads = Integer.parseInt(args[1].trim());
 
             @SuppressWarnings("unused")
             Server server = new Server(args[0], threads);
