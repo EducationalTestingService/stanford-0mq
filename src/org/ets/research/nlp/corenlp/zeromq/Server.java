@@ -16,7 +16,25 @@ public class Server
     public Server(String myBrokerAddress, int threads)
     {
 
-        try
+    	if (threads < 1 || threads > 10)
+    	{
+
+    		// if the number of threads is less than 1, bound it at 1;
+    		// otherwise, we know it's greater than ten, so bound it at 10
+    		int boundedThreads = ((threads < 1) ? 1 : 10);
+
+    		// print an error message, and bound the threads at the value of boundedThreads
+    		String errorMsg = "The number of threads must be between 1 and 10. You passed "
+    	                    + Integer.toString(threads)
+    	                    + ", so the number of threads will be bounded at "
+    	                    + Integer.toString(boundedThreads)
+    	                    + " instead.";
+
+    		System.err.println(errorMsg);
+    		threads = boundedThreads;
+    	}
+ 
+    	try
         {
             System.err.println("Initializing MaxentTagger...");
             tagger = new MaxentTagger("edu/stanford/nlp/models/pos-tagger/english-left3words/english-left3words-distsim.tagger");
