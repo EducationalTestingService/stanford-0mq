@@ -61,8 +61,12 @@ public class Server
         // tcp://127.0.0.1:5555
         if (args.length == 2)
         {
+                
+            // get the number of threads as an integer
+            threads = Integer.parseInt(args[1]);
+
             @SuppressWarnings("unused")
-            Server server = new Server(args[0], args[1]);
+            Server server = new Server(args[0], threads);
         }
         else
         {
